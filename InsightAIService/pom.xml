@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.github.issue.analyzer</groupId>
-	<artifactId>InsightAI</artifactId>
+	<artifactId>InsightAIService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
@@ -154,40 +154,107 @@
 
 		<plugins>
 
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.15.0</version>
+
+				<configuration>
+					<!-- ✅ IMPORTANT FIX -->
+					<workingDirectory>../frontend</workingDirectory>
+					<installDirectory>../frontend</installDirectory>
+				</configuration>
+
+				<executions>
+
+					<!-- Install Node -->
+					<execution>
+						<id>install-node</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<configuration>
+							<nodeVersion>v18.18.0</nodeVersion>
+							<npmVersion>9.8.1</npmVersion>
+						</configuration>
+					</execution>
+
+					<!-- npm install -->
+					<execution>
+						<id>npm-install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
+					</execution>
+
+					<!-- npm build -->
+					<execution>
+						<id>npm-build</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
 			<!-- Spring Boot Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-
-
-			<!-- Copy scripts & config -->
+			<!-- Copy resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.3.1</version>
 				<executions>
 
+					<!-- ✅ Copy React build into static -->
+					<execution>
+						<id>copy-react-build</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>../frontend/build</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+
 					<!-- Copy BAT files -->
-                    <execution>
-                        <id>copy-scripts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/build-package</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources/scripts</directory>
-                                    <includes>
-                                        <include>*.bat</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
+					<execution>
+						<id>copy-scripts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/build-package</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources/scripts</directory>
+									<includes>
+										<include>*.bat</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
 
 					<!-- Copy config -->
 					<execution>
@@ -229,10 +296,10 @@
 							<goal>run</goal>
 						</goals>
 					</execution>
-
 				</executions>
 			</plugin>
 
+			<!-- Compiler Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

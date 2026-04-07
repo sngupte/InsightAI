@@ -35,7 +35,7 @@ const AnalyzeIssues = ({ repoValue, setAnalysis }) => {
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
-        <Typography variant="h6">Analyze Issues</Typography>
+        <Typography variant="h6">Analyze Issues 2 </Typography>
 
         <TextField
           fullWidth

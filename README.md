@@ -7,8 +7,8 @@ A full-stack application that analyzes GitHub repositories and issues using AI (
 ## 📁 Project Structure
 
 ```
-/backend   → Spring Boot application
-/frontend  → React.js application
+/backend   → Spring Boot application (build + packaging)
+/frontend  → React.js application (auto-built via Maven)
 README.md  → Project documentation
 ```
 
@@ -20,7 +20,7 @@ GitHub Insight AI allows users to:
 
 * Scan a GitHub repository
 * Fetch issues and metadata
-* Analyze issues using an LLM(Claude by Anthropic)
+* Analyze issues using an LLM (Claude by Anthropic)
 * Generate insights and summaries
 
 ---
@@ -30,10 +30,11 @@ GitHub Insight AI allows users to:
 Ensure the following are installed:
 
 * Java 17+
-* Node.js (v16 or higher)
 * Maven
 * MySQL
 * Git
+
+❗ Node.js is **NOT required manually** (handled by Maven build)
 
 ---
 
@@ -42,11 +43,10 @@ Ensure the following are installed:
 ### 1. Create Database
 
 ```sql
-create database InsightAIDb
+create database InsightAIDb;
 
-use InsightAIDb
+use InsightAIDb;
 
--- Create table
 CREATE TABLE IF NOT EXISTS github_issues (
     id  BIGINT NOT NULL AUTO_INCREMENT,
     github_id BIGINT NOT NULL,
@@ -60,19 +60,54 @@ CREATE TABLE IF NOT EXISTS github_issues (
     PRIMARY KEY (id, repo)
 );
 
--- Index for faster queries by repo
 CREATE INDEX idx_repo ON github_issues(repo);
-
 ```
 
 ---
+
+## ⚙️ Full Application Build (Frontend + Backend)
+
+🚀 **Single Command Build**
+
+```bash
+mvn clean package
+```
+
+### ✅ What happens internally:
+
+* Node.js installed automatically
+* React dependencies installed
+* React app built (`npm run build`)
+* React build copied into Spring Boot (`/static`)
+* Spring Boot JAR created
+* Deployment package generated
+
+---
+
+## 📦 Output Package
+
+```
+target/
+ └── build-package/
+      ├── app.jar
+      └── *.bat
+```
+
+---
+
+## ▶️ Run Application
+
+```bash
+cd target/build-package
+start.bat
+```
 
 ## ⚙️ Backend Setup (Spring Boot)
 
 ### 1. Navigate to Backend
 
 ```bash
-cd backend
+cd InsightAIService
 ```
 
 ### 2. Build the Project
@@ -111,22 +146,6 @@ anthropic.api-key=
 👉 Fill these values before running the application.
 
 ---
-
-### 5. Load External Config
-
-Ensure this is present in `application.properties`:
-
-```properties
-spring.config.additional-location=file:D:/config/insightAI.properties
-```
-
----
-
-### 6. Start Backend
-
-```bash
-start.bat
-```
 
 ⚠️ Backend must be started before frontend.
 
@@ -198,7 +217,13 @@ curl -X POST http://localhost:8080/githubinsightai/scan \
 }'
 ```
 
-
+```json
+{
+    "repo": "navinreddy20/Spring_Course",
+    "issuesFetched": 19,
+    "storedStatus": "Issues scanned and stored successfully."
+}
+```
 
 ---
 
